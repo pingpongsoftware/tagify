@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/ui/controls/Button.qml</file>
+        <file>qml/ui/controls/ProgressBar.qml</file>
+        <file>qml/ui/design/Logo.qml</file>
+        <file>qml/ui/design/LogoLoading.qml</file>
+        <file>qml/app/MainView.qml</file>
+        <file>qml/global/format.qml</file>
+        <file>qml/global/palette.qml</file>
+        <file>qml/global/spotify.qml</file>
+        <file>qml/app/InitialView.qml</file>
+        <file>qml/app/LoadingScreen.qml</file>
+        <file>qml/app/ChooseDevice.qml</file>
+        <file>qml/global/settings.qml</file>
+        <file>qml/app/SplashScreen.qml</file>
+        <file>qml/ui/controls/Label.qml</file>
+        <file>qml/app/NowPlaying.qml</file>
+        <file>qml/ui/controls/PlayPauseButton.qml</file>
+        <file>qml/ui/controls/NextButton.qml</file>
+        <file>qml/ui/controls/PrevButton.qml</file>
+        <file>qml/app/NowPlayingBar.qml</file>
+        <file>qml/app/Songs.qml</file>
+        <file>qml/app/Albums.qml</file>
+        <file>qml/ui/controls/Icon.qml</file>
+        <file>icons/MaterialIcons-Regular.ttf</file>
+        <file>qml/ui/controls/IconButton.qml</file>
+        <file>qml/app/Artists.qml</file>
+        <file>qml/app/NowPlaying2.qml</file>
+        <file>qml/app/MainView_copy.qml</file>
+        <file>qml/ui/controls/MyAnimation.qml</file>
+        <file>qml/app/LibraryFooter.qml</file>
+    </qresource>
+</RCC>
