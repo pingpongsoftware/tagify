@@ -14,7 +14,7 @@ Controls.ApplicationWindow {
     visible: true
     title: qsTr("Tagify");
     background: Rectangle {
-        color: "#151515"
+        color: Spotify.color_background1;
     }
 
     property string authUrl;

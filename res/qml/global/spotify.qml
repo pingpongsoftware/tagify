@@ -24,6 +24,16 @@ Item {
     property int requestInterval: 1000;
     property var nowPlaying;
 
+    property var activeTags: [];
+    property string tagifyFilter: {
+        var baseString = "instr(tags, '" + "&" + "') > 0";;
+        var finalString = "";
+        for (var i in activeTags) {
+            finalString += baseString.replace("&", activeTags[i]) + ' AND ';
+        }
+        return finalString.slice(0, -5);
+    }
+
     function getMinutesString(ms) {
         var min = Math.floor(ms / 60000).toString();
         var sec = (Math.floor(ms / 1000) % 60).toString();
@@ -36,6 +46,7 @@ Item {
     function initialize() {
         getCurrentUser();
         getDevices();
+//        spotify.state = "initialized";
         getAllSongs(function() { spotify.state = "initialized"; })
     }
 
@@ -61,6 +72,10 @@ Item {
         SpotifyWrapper.get('https://api.spotify.com/v1/me/player', callback);
     }
 
+    function getAlbums(albumIds, callback) {
+        SpotifyWrapper.get("https://api.spotify.com/v1/albums?ids=" + albumIds.join(','), callback);
+    }
+
     function getArtist(artistId, callback) {
         SpotifyWrapper.get("https://api.spotify.com/v1/artists/" + artistId, callback)
     }
@@ -72,10 +87,9 @@ Item {
                     var data = JSON.parse(response);
                     limit = data.total;
                     extrapolateDataFromSongs(data.items);
-                    getSongs(offset + interval, limit, interval);
+                    getSongs(offset + interval, limit, interval);                    
                 });
             } else if (offset >= limit) {
-//                getAllArtists();
                 callback();
             }
         }
@@ -83,59 +97,100 @@ Item {
         getSongs(0, 0, 10);
     }
 
-    function getAllArtists() {
-        function getArtists(count, index) {
-            if (index < artistIds.length) {
-                var maxIndex = Math.min(index + count, artistIds.length - 1);
-                console.log(maxIndex);
-                var ids = JSON.stringify(artistIds.slice(index, index + count));
-                ids = ids.substring(1, ids.length - 1).split('"').join("");
-                console.log(ids)
-                SpotifyWrapper.get("https://api.spotify.com/v1/artists?ids=" + ids, function(response) {
-                    console.log(response);
-                    getArtist(count, index + count);
-                });
-            }
-        }
-
-        getArtists(50, 0);
+    function getAudioFeatures(songIds, callback) {
+        callback = callback || function() {};
+        SpotifyWrapper.get("https://api.spotify.com/v1/audio-features?ids=" + songIds.join(','), callback);
     }
 
     function extrapolateDataFromSongs(songArray) {
+        var songIds = [];
+        var albumIds = [];
+
         for (var i in songArray) {
-            var albumData = songArray[i].track.album;
-            var artistData = songArray[i].track.artists;
-            songs.push(songArray[i].track);
+            var track = songArray[i].track;
+            var album = track.album;
+            var artist = track.artists[0];
+            songIds.push(track.id);
+            albumIds.push(album.id);
 
-            var song = {
-                "name": songArray[i].track.name,
-                "id": songArray[i].track.id,
-                "uri": songArray[i].track.uri,
-                "track_number": songArray[i].track.track_number,
-                "album": JSON.parse(JSON.stringify(albumData)),
-                "artists": JSON.parse(JSON.stringify(artistData))
-            }
+            DBManager.addSong(track.id, track.name, album.id, album.name, artist.id, artist.name, "");
+            DBManager.addAlbum(album.id, album.name, album.images[0].url, album.artists[0].id, album.artists[0].name);
+            DBManager.addArtist(artist.id, artist.name)
+        }
 
-            var albumIndex = indexOf(albumData.id, albums);
-            if (albumIndex >= 0) {
-                albums[albumIndex].songs.push(song);
-            } else {
-                albums.push({
-                    "name": albumData.name,
-                    "artists": albumData.artists,
-                    "id": albumData.id,
-                    "uri": albumData.uri,
-                    "images": albumData.images,
-                    "songs": [song]
-                });
+        getAudioFeatures(songIds, function(response) {
+            var data = JSON.parse(response);
+            for (var i in data.audio_features) {
+                generateTag(data.audio_features[i]);
             }
+        });
 
-            for (var ai in artistData) {
-                var artistIndex = indexOf(artistData[ai].id, artists);
-                if (artistIds.indexOf(artistData[ai].id) < 0) {
-                    artistIds.push(artistData[ai].id);
-                }
+        getAlbums(albumIds, function(response) {
+            var data = JSON.parse((response));
+            for (var i in data.albums) {
+                generateAlbumTags(data.albums[i]);
             }
+        });
+    }
+
+    property int count: 0;
+    property int totalTempo;
+
+    function generateTag(audioFeatures) {
+        if (audioFeatures.acousticness > 0.5) {
+            DBManager.addTag(audioFeatures.id, "Acoustic");
+        }
+
+        if (audioFeatures.danceability > 0.5) {
+            DBManager.addTag(audioFeatures.id, "Dance");
+        }
+
+        if (audioFeatures.energy > 0.5) {
+            DBManager.addTag(audioFeatures.id, "Pump up");
+        }
+
+        if (audioFeatures.instrumentalness > 0.5) {
+            DBManager.addTag(audioFeatures.id, "Instrumental");
+        }
+
+        if (audioFeatures.liveness > 0.5) {
+            DBManager.addTag(audioFeatures.id, "Live");
+        }
+
+        if (audioFeatures.loudness > -5) {
+            DBManager.addTag(audioFeatures.id, "Loud");
+        } else if (audioFeatures.loudness < -20) {
+            DBManager.addTag("Quiet");
+        }
+
+        if (audioFeatures.tempo > 120) {
+            DBManager.addTag("Upbeat");
+        } else if (audioFeatures.temp < 110) {
+            DBManager.addTag("Slow");
+        }
+
+        if (audioFeatures.valence > 0.5) {
+            DBManager.addTag("Happy");
+        } else if (audioFeatures.valence < 0.5) {
+            DBManager.addTag("Moody");
+        }
+    }
+
+    function generateAlbumTags(album) {
+        var year = parseInt(album.release_date.substring(0, 4));
+        if (year < 2000 && year >= 1950) {
+            var yearStr = "";
+            if (year >= 1990) yearStr = "90''s";
+            else if (year >= 1980) yearStr = "80''s";
+            else if (year >= 1970) yearStr = "70''s";
+            else if (year >= 1960) yearStr = "60''s";
+            else if (year >= 1950) yearStr = "50''s";
+            DBManager.addAlbumTag(album.id, yearStr);
+        }
+        console.log(album.genres);
+        for (var i in album.genres) {
+            console.log(album.genres[i]);
+            DBManager.addAlbumTag(album.id, album.genres[i]);
         }
     }
 

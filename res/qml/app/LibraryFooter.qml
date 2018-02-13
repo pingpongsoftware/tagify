@@ -10,7 +10,7 @@ Rectangle {
     id: footer;
 
     signal newState(string newState);
-    onStateChanged: console.log(state)
+    signal tagifyClicked();
 
     height: Format.footer;
     color: Palette.color_background2;
@@ -46,9 +46,10 @@ Rectangle {
             }
         }
 
-        Item {
+        MouseArea {
             Layout.fillWidth: true;
             Layout.fillHeight: true;
+            onClicked: tagifyClicked();
 
             Logo {
                 width: height;

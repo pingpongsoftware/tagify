@@ -42,6 +42,7 @@ MouseArea {
                     anchors.top: parent.top;
                     anchors.bottom: parent.bottom;
                     radius: width / 2;
+                    color: Palette.color_textPrimary;
                 }
 
                 Rectangle {
@@ -50,6 +51,7 @@ MouseArea {
                     anchors.top: parent.top;
                     anchors.bottom: parent.bottom;
                     radius: width / 2;
+                    color: Palette.color_textPrimary;
                 }
             }
         }

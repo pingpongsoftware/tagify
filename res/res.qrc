@@ -15,7 +15,6 @@
         <file>qml/global/settings.qml</file>
         <file>qml/app/SplashScreen.qml</file>
         <file>qml/ui/controls/Label.qml</file>
-        <file>qml/app/NowPlaying.qml</file>
         <file>qml/ui/controls/PlayPauseButton.qml</file>
         <file>qml/ui/controls/NextButton.qml</file>
         <file>qml/ui/controls/PrevButton.qml</file>
@@ -26,9 +25,9 @@
         <file>icons/MaterialIcons-Regular.ttf</file>
         <file>qml/ui/controls/IconButton.qml</file>
         <file>qml/app/Artists.qml</file>
-        <file>qml/app/NowPlaying2.qml</file>
-        <file>qml/app/MainView_copy.qml</file>
+        <file>qml/app/NowPlaying.qml</file>
         <file>qml/ui/controls/MyAnimation.qml</file>
         <file>qml/app/LibraryFooter.qml</file>
+        <file>qml/app/TagView.qml</file>
     </qresource>
 </RCC>

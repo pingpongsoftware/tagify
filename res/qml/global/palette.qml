@@ -4,7 +4,7 @@ import QtQuick 2.8
 Item {
     id: palette;
 
-    state: "spotify-dark";
+    state: "spotify-light";
 
     readonly property color spotify: "#1ED760";
 
@@ -26,6 +26,9 @@ Item {
     property color color_nowPlayingOverlay;
 
     property real pressedOpacity;
+    property real nowPlayingOverlayOpacity;
+
+    property string nowPlayingOverlayMode;
 
     states: [
         State {
@@ -51,6 +54,8 @@ Item {
                 color_nowPlayingOverlay: "#707070";
 
                 pressedOpacity: 0.5;
+                nowPlayingOverlayOpacity: 1.0;
+                nowPlayingOverlayMode: "multiply";
             }
         },
         State {
@@ -64,7 +69,7 @@ Item {
                 color_button: spotify;
                 color_buttonActive: Qt.lighter(color_button, 1.1);
                 color_textPrimary: "#353535";
-                color_textSecondary: "#404040";
+                color_textSecondary: "#484848";
                 color_textButton: color_background;
                 color_logoCirclePrimary: spotify;
                 color_logoTagPrimary: color_background;
@@ -76,6 +81,8 @@ Item {
                 color_nowPlayingOverlay: "white";
 
                 pressedOpacity: 0.5;
+                nowPlayingOverlayOpacity: 0;
+                nowPlayingOverlayMode: "average";
             }
         }
     ]

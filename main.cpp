@@ -7,6 +7,8 @@
 
 #include "spotifywrapper.h"
 #include "fileio.h"
+#include "dbmanager.h"
+#include "sqlmodel.h"
 
 int main(int argc, char *argv[])
 {
@@ -17,8 +19,9 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("SpotifyWrapper", new SpotifyWrapper(&engine));
     engine.rootContext()->setContextProperty("FileIO", new FileIO());
+    engine.rootContext()->setContextProperty("DBManager", new DBManager());
 
-    qDebug() << "ASFLIHASIDLHLIASG" << QSslSocket::supportsSsl();
+    qmlRegisterType<SqlModel>("com.pps.tagify", 1, 0, "SqlListModel");
 
     qmlRegisterSingletonType(QUrl("qrc:/qml/global/spotify.qml"), "spotify", 1, 0, "Spotify");
     qmlRegisterSingletonType(QUrl("qrc:/qml/global/palette.qml"), "palette", 1, 0, "Palette");

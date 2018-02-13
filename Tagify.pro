@@ -1,4 +1,4 @@
-QT += quick network networkauth webview
+QT += quick network networkauth webview sql
 CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
@@ -14,11 +14,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 HEADERS += \
     spotifywrapper.h \
-    fileio.h
+    fileio.h \
+    dbmanager.h \
+    sqlmodel.h
 
 SOURCES += main.cpp \
     spotifywrapper.cpp \
-    fileio.cpp
+    fileio.cpp \
+    dbmanager.cpp \
+    sqlmodel.cpp
 
 RESOURCES += \
     res/res.qrc

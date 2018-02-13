@@ -47,5 +47,6 @@ MouseArea {
         height: shape.height;
         width: path.strokeWidth;
         anchors.verticalCenter: shape.verticalCenter;
+        color: Palette.color_textPrimary;
     }
 }

@@ -8,24 +8,63 @@ import settings 1.0
 import "../ui/controls"
 
 Item {
-    signal backButtonClicked;
+    id: main;
+
+    property real bottomMargin;
+    property real topMargin;
+    property real topBlurMargin;
+
+    property real closedHeight: Format.header;
+
+    Behavior on bottomMargin { MyAnimation {} }
+    Behavior on topMargin { MyAnimation {} }
+    Behavior on topBlurMargin { MyAnimation {} }
 
     Image {
         id: albumArt;
 
+        visible: false;
+        anchors.fill: parent;
+        source: Spotify.nowPlaying.album.images[0].url;
+        fillMode: Image.PreserveAspectCrop;
+    }
+
+    Item {
+        id: artMask;
+
+        visible: false;
+        anchors.fill: parent;
+
+        Rectangle {
+            anchors.fill: parent;
+            anchors.topMargin: topMargin;
+            anchors.bottomMargin: bottomMargin;
+        }
+    }
+
+    OpacityMask {
+        anchors.fill: parent;
+        source: albumArt;
+        maskSource: artMask;
+    }
+
+    Image {
+        id: blurAlbumArt;
+
+        visible: false;
         anchors.fill: parent;
         asynchronous: true;
         source: Spotify.nowPlaying.album.images[0].url;
-        fillMode: Image.PreserveAspectCrop
+        fillMode: Image.PreserveAspectCrop;
     }
 
     FastBlur {
-        id: blur;
+        id: blurEffect;
 
-        visible: false;
-        source: albumArt;
-        anchors.fill: parent;
         radius: 128;
+        visible: false;
+        source: blurAlbumArt;
+        anchors.fill: parent;
         layer.enabled: true;
         layer.effect: FastBlur {
             radius: 128;
@@ -44,143 +83,162 @@ Item {
         }
     }
 
+    Item {
+        id: blurMask;
+
+        visible: false;
+        anchors.fill: parent;
+
+        Rectangle {
+            anchors.fill: parent;
+            anchors.topMargin: main.topBlurMargin;
+            anchors.bottomMargin: main.bottomMargin;
+        }
+    }
+
+    Rectangle {
+        id: blender;
+
+        anchors.fill: parent;
+        color: Palette.color_nowPlayingOverlay;
+        visible: false;
+    }
+
     OpacityMask {
         anchors.fill: parent;
-        source: blur;
-        maskSource: gradientRect;
+        source: blurEffect;
+        maskSource: blurMask;
         layer.enabled: true;
         layer.effect: Blend {
-            foregroundSource: darkener;
-            mode: "multiply";
+            foregroundSource: blender;
+            mode: Palette.nowPlayingOverlayMode;
+            opacity: Palette.nowPlayingOverlayOpacity;
         }
-    }
-
-    Rectangle {
-        id: gradientRect;
-        visible: false;
-        width: parent.width;
-        height: parent.height;
-
-        property real pos: 1 - (nowPlayingContainer.height / parent.height);
-
-        gradient: Gradient {
-            GradientStop { color: "white"; position: gradientRect.pos; }
-            GradientStop { color: "transparent"; position: gradientRect.pos; }
-        }
-
-        MouseArea {
-            anchors.fill: parent;
-            drag.target: parent;
-            drag.axis: Drag.YAxis;
-            onClicked: parent.y -= 10;
-        }
-    }
-
-    Rectangle {
-        id: darkener;
-        anchors.fill: parent;
-        color: "#707070";
-        visible: false;
     }
 
     Item {
         id: nowPlayingContainer;
+        anchors.fill: parent;
+        anchors.topMargin: main.topBlurMargin;
+        anchors.bottomMargin: main.bottomMargin;
 
-        anchors.left: parent.left;
-        anchors.right: parent.right;
-        anchors.bottom: parent.bottom;
-        anchors.top: nowPlayingColumn.top;
-        anchors.topMargin: -Format.marginMedium;
-
-        property int seconds: Spotify.currentSongProgress / 1000;
+        MouseArea {
+            anchors.fill: parent;
+            onClicked: {
+                nowPlaying.state = nowPlaying.state == "full" ? "bar" : "full";
+            }
+        }
 
         ProgressBar {
-            id: progressBar;
-
             anchors.left: parent.left;
             anchors.right: parent.right;
             anchors.top: parent.top;
-            backgroundColor: Palette.color_textPrimary;
         }
-
-        Label {
-            anchors.left: parent.left;
-            anchors.top: progressBar.bottom;
-            anchors.margins: Format.marginTiny;
-            font.pixelSize: Format.textSmall;
-            text: Spotify.getMinutesString(Spotify.currentSongProgress);
-        }
-
-        Label {
-            anchors.right: parent.right;
-            anchors.top: progressBar.bottom;
-            anchors.margins: Format.marginTiny;
-            font.pixelSize: Format.textSmall;
-            text: Spotify.getMinutesString(Spotify.currentSongDuration);
-        }
-    }
-
-    Column {
-        id: nowPlayingColumn;
-
-        spacing: Format.marginMedium;
-        anchors.left: parent.left;
-        anchors.right: parent.right;
-        anchors.bottom: parent.bottom;
-        anchors.bottomMargin: Format.marginMedium;
 
         Column {
+            id: nowPlayingColumn;
+
+            anchors.top: parent.top;
+            anchors.topMargin: Format.marginSmall;
             anchors.horizontalCenter: parent.horizontalCenter;
 
+            readonly property real topMarginFull: Format.marginStandard;
+            readonly property real topMarginBar: Format.marginSmall;
+
+            Behavior on anchors.topMargin { MyAnimation{} }
+
             Label {
-                anchors.horizontalCenter: parent.horizontalCenter;
                 text: Spotify.nowPlaying.name;
+                anchors.horizontalCenter: parent.horizontalCenter;
+                font.pointSize: Format.textCaption
             }
 
             Label {
-                anchors.horizontalCenter: parent.horizontalCenter;
                 text: Spotify.nowPlaying.artists[0].name;
-                font.pointSize: Format.textCaption;
+                anchors.horizontalCenter: parent.horizontalCenter;
+                font.pointSize: Format.textSmall;
+                color: Palette.color_textSecondary;
             }
         }
 
-        Row {
-            anchors.horizontalCenter: parent.horizontalCenter;
-            spacing: Format.marginMedium;
+        PrevButton {
+            anchors.right: playPauseButton.left;
+            anchors.margins: Format.marginStandard;
+            anchors.verticalCenter: playPauseButton.verticalCenter;
+            releasedOpacity: playPauseButton.otherButtonsOpacity;
+            height: playPauseButton.height * 0.66;
+            width: height;
+            enabled: opacity == 1;
+            onClicked: SpotifyWrapper.post('https://api.spotify.com/v1/me/player/previous', '', function(){});
+        }
 
-            PrevButton {
-                width: height;
-                height: Format.basicUnit * 6;
-                anchors.verticalCenter: parent.verticalCenter;
-                onClicked: SpotifyWrapper.post('https://api.spotify.com/v1/me/player/previous', '', function(){});
+        PlayPauseButton {
+            id: playPauseButton;
+
+            width: height;
+
+            Behavior on x { MyAnimation{} }
+            Behavior on y { MyAnimation{} }
+            Behavior on height { MyAnimation{} }
+            Behavior on otherButtonsOpacity { MyAnimation{} }
+
+            property real otherButtonsOpacity;
+        }
+
+        NextButton {
+            anchors.left: playPauseButton.right;
+            anchors.margins: Format.marginStandard;
+            anchors.verticalCenter: playPauseButton.verticalCenter;
+            releasedOpacity: playPauseButton.otherButtonsOpacity;
+            height: playPauseButton.height * 0.66;
+            width: height;
+            enabled: opacity == 1;
+            onClicked: SpotifyWrapper.post('https://api.spotify.com/v1/me/player/next', '', function(){});
+        }
+    }
+
+    states: [
+        State {
+            name: "bar";
+            PropertyChanges {
+                target: main;
+                bottomMargin: Format.footer;
+                topMargin: main.height - Format.footer - closedHeight;
+                topBlurMargin: main.height - Format.footer - closedHeight;
             }
+            PropertyChanges {
+                target: nowPlayingColumn
+                anchors.topMargin: topMarginBar;
+            }
+            PropertyChanges {
+                target: playPauseButton;
 
-            PlayPauseButton {
-                width: height;
+                x: main.width - Format.basicUnit * 4 - Format.marginStandard;
+                y: (Format.header - Format.basicUnit * 4) / 2;
+                height: Format.basicUnit * 4;
+                otherButtonsOpacity: 0;
+            }
+        },
+        State {
+            name: "full";
+            PropertyChanges {
+                target: main;
+                bottomMargin: 0;
+                topMargin: 0;
+                topBlurMargin: main.height - Format.header * 3;
+            }
+            PropertyChanges {
+                target: nowPlayingColumn
+                anchors.topMargin: topMarginFull;
+            }
+            PropertyChanges {
+                target: playPauseButton;
+
+                x: (main.width - Format.basicUnit * 8) / 2;
+                y: nowPlayingColumn.height + nowPlayingColumn.topMarginFull + Format.marginStandard;
                 height: Format.basicUnit * 8;
-                anchors.verticalCenter: parent.verticalCenter;
-            }
-
-            NextButton {
-                width: height;
-                height: Format.basicUnit * 6;
-                anchors.verticalCenter: parent.verticalCenter;
-                onClicked: SpotifyWrapper.post('https://api.spotify.com/v1/me/player/next', '', function(){});
+                otherButtonsOpacity: 1;
             }
         }
-    }
-
-    IconButton {
-        icon: "\uE5C4";
-        size: Format.basicUnit * 3;
-        anchors.left: parent.left;
-        anchors.top: parent.top;
-        anchors.margins: Format.marginStandard;
-        onClicked: backButtonClicked();
-        layer.enabled: true;
-        layer.effect: DropShadow {
-            radius: 5;
-            color: "black";
-        }
-    }
+    ]
 }

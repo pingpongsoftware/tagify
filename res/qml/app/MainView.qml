@@ -13,43 +13,52 @@ Rectangle {
     id: main;
 
     state: "songs";
-    onStateChanged: console.log(state);
     color: Palette.color_background;
 
-    Item {
-        anchors.fill: parent;
+    C.StackView {
+        id: stackView;
 
-        Loader {
-            anchors.left: parent.left;
-            anchors.right: parent.right;
-            anchors.top: parent.top;
-            anchors.bottom: footer.top;
-            anchors.bottomMargin: nowPlaying.closedHeight;
-            sourceComponent: {
-                switch(main.state) {
-                case "songs": return songs;
-                case "artists": return artists;
-                case "albums": return albums;
-                case "playlists": return playlists;
+        anchors.fill: parent;
+        initialItem: mainComponent
+    }
+
+    Component {
+        id: mainComponent;
+
+        Item {
+            Loader {
+                anchors.left: parent.left;
+                anchors.right: parent.right;
+                anchors.top: parent.top;
+                anchors.bottom: footer.top;
+                anchors.bottomMargin: nowPlaying.closedHeight;
+                sourceComponent: {
+                    switch(main.state) {
+                    case "songs": return songs;
+                    case "artists": return artists;
+                    case "albums": return albums;
+                    case "playlists": return playlists;
+                    }
                 }
             }
-        }
 
-        LibraryFooter {
-            id: footer;
+            LibraryFooter {
+                id: footer;
 
-            state: main.state;
-            anchors.left: parent.left;
-            anchors.right: parent.right;
-            anchors.bottom: parent.bottom;
-            onNewState: main.state = newState;
-        }
+                state: main.state;
+                anchors.left: parent.left;
+                anchors.right: parent.right;
+                anchors.bottom: parent.bottom;
+                onNewState: main.state = newState;
+                onTagifyClicked: stackView.push(tagView);
+            }
 
-        NowPlaying2 {
-            id: nowPlaying;
+            NowPlaying {
+                id: nowPlaying;
 
-            state: "bar"
-            anchors.fill: parent;
+                state: "bar"
+                anchors.fill: parent;
+            }
         }
     }
 
@@ -71,5 +80,10 @@ Rectangle {
     Component {
         id: playlists;
         Label { text: "PLAYLISTS" }
+    }
+
+    Component {
+        id: tagView;
+        TagView {}
     }
 }
