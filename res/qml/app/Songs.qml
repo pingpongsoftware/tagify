@@ -8,8 +8,8 @@ import format 1.0
 import "../ui/controls"
 
 ListView {
-//    headerPositioning: ListView.PullBackHeader;
-    headerPositioning: ListView.OverlayHeader;
+    clip: true;
+    headerPositioning: ListView.PullBackHeader;
 
     property string nameFilter: "";
     property string currentId: "";

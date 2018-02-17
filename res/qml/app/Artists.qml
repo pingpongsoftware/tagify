@@ -9,7 +9,7 @@ import "../ui/controls"
 ListView {
     model: SqlListModel {
         table: "artists";
-        roles: ["artistId", "artistName"];
+        roles: ["artistId", "artistName", "artistImage"];
     }
 
     delegate: Item {
@@ -17,10 +17,23 @@ ListView {
         anchors.right: parent.right;
         height: 60;
 
+        RoundImage {
+            id: icon;
+
+            anchors.top: parent.top;
+            anchors.bottom: parent.bottom;
+            anchors.left: parent.left;
+            anchors.margins: Format.marginSmall;
+            anchors.leftMargin: Format.marginStandard;
+            width: height;
+            image.source: artistImage;
+            image.asynchronous: true;
+        }
+
         Label {
             text: artistName;
             anchors.verticalCenter: parent.verticalCenter;
-            anchors.left: parent.left;
+            anchors.left: icon.right;
             anchors.leftMargin: Format.marginStandard;
             size: Format.textSmall;
         }

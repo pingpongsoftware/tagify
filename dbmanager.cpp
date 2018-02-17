@@ -2,15 +2,21 @@
 #include <QDebug>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QSqlResult>
+#include <QSqlRecord>
 
 DBManager::DBManager(QObject *parent) : QObject(parent) {
     _database = QSqlDatabase::addDatabase("QSQLITE", "");
     _database.setDatabaseName("tagify.db");
     if (_database.open()) {
+        if (_database.tables().contains("songs") && _database.tables().contains("albums") && _database.tables().contains("artists") && _database.tables().contains("tags")) {
+            _alreadyExists = true;
+        }
+
         QSqlQuery query(_database);
         query.exec("CREATE TABLE songs(songId VARCHAR PRIMARY KEY, songName VARCHAR, albumId VARCHAR, albumName VARCHAR, artistId VARCHAR, artistName VARCHAR, tags VARCHAR)");
         query.exec("CREATE TABLE albums(albumId VARCHAR PRIMARY KEY, albumName VARCHAR, artUrl VARCHAR, artistId VARCHAR, artistName VARCHAR)");
-        query.exec("CREATE TABLE artists(artistId VARCHAR PRIMARY KEY, artistName VARCHAR)");
+        query.exec("CREATE TABLE artists(artistId VARCHAR PRIMARY KEY, artistName VARCHAR, artistImage VARCHAR)");
         query.exec("CREATE TABLE tags(tagName VARCHAR PRIMARY KEY)");
         _database.close();
     }
@@ -19,7 +25,7 @@ DBManager::DBManager(QObject *parent) : QObject(parent) {
 void DBManager::addSong(const QString &songId, const QString &songName, const QString &albumId, const QString &albumName, const QString &artistId, const QString &artistName, const QString &tags) {
     if (_database.open()) {
         QSqlQuery query(_database);
-        query.prepare("INSERT OR IGNORE INTO songs (songId, songName, albumId, albumName, artistId, artistName, tags) VALUES (:songId, :name, :albumId, :albumName, :artistId, :artistName, :tags)");
+        query.prepare("INSERT OR REPLACE INTO songs (songId, songName, albumId, albumName, artistId, artistName, tags) VALUES (:songId, :name, :albumId, :albumName, :artistId, :artistName, :tags)");
         query.bindValue(":songId", songId);
         query.bindValue(":name", songName);
         query.bindValue(":albumId", albumId);
@@ -35,7 +41,7 @@ void DBManager::addSong(const QString &songId, const QString &songName, const QS
 void DBManager::addAlbum(const QString &albumId, const QString &albumName, const QString &albumArtUrl, const QString &artistId, const QString &artistName) {
     if (_database.open()) {
         QSqlQuery query(_database);
-        query.prepare("INSERT OR IGNORE INTO albums(albumId, albumName, artUrl, artistId, artistName) VALUES (:albumId, :albumName, :artUrl, :artistId, :artistName)");
+        query.prepare("INSERT OR REPLACE INTO albums(albumId, albumName, artUrl, artistId, artistName) VALUES (:albumId, :albumName, :artUrl, :artistId, :artistName)");
         query.bindValue(":albumId", albumId);
         query.bindValue(":albumName", albumName);
         query.bindValue(":artUrl", albumArtUrl);
@@ -46,12 +52,13 @@ void DBManager::addAlbum(const QString &albumId, const QString &albumName, const
     }
 }
 
-void DBManager::addArtist(const QString &artistId, const QString &artistName) {
+void DBManager::addArtist(const QString &artistId, const QString &artistName, const QString &artistImage) {
     if (_database.open()) {
         QSqlQuery query(_database);
-        query.prepare("INSERT INTO OR IGNORE artists(artistId, artistName) VALUES (:artistId, :artistName)");
+        query.prepare("INSERT OR REPLACE INTO artists(artistId, artistName, artistImage) VALUES (:artistId, :artistName, :artistImage)");
         query.bindValue(":artistId", artistId);
         query.bindValue(":artistName", artistName);
+        query.bindValue(":artistImage", artistImage);
         query.exec();
         _database.close();
     }

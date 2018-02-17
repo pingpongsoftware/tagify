@@ -11,7 +11,7 @@ QSqlDatabase initializeDatabase() {
     return db;
 }
 
-SqlModel::SqlModel(QObject *parent) : QSqlRelationalTableModel(parent, initializeDatabase()) {
+SqlModel::SqlModel(QObject *parent) : QSqlTableModel(parent, initializeDatabase()) {
 }
 
 
@@ -47,6 +47,11 @@ void SqlModel::setFilterString(const QString &filter) {
         setSort(1, Qt::AscendingOrder);
         setFilter(filter);
         applyRoles();
+
+        while(canFetchMore()) {
+            fetchMore();
+        }
+
         database().close();
 
         emit filterStringChanged();
@@ -58,6 +63,11 @@ void SqlModel::setTableName(const QString &table) {
         clear();
         setTable(table);
         select();
+
+        while(canFetchMore()) {
+            fetchMore();
+        }
+
         database().close();
 
         emit tableChanged();

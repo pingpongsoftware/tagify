@@ -9,7 +9,7 @@ import "../ui/controls"
 ListView {
     model: SqlListModel {
         table: "albums";
-        roles: ["albumName", "artUrl", "artistId"];
+        roles: ["albumName", "artUrl", "artistId", "artistName"];
     }
 
     delegate: Item {
@@ -23,18 +23,28 @@ ListView {
             anchors.top: parent.top;
             anchors.bottom: parent.bottom;
             anchors.left: parent.left;
-            anchors.margins: Format.marginStandard;
+            anchors.margins: Format.marginSmall;
+            anchors.leftMargin: Format.marginStandard;
             width: height;
             source: artUrl;
             asynchronous: true;
         }
 
-        Label {
-            text: albumName;
-            anchors.verticalCenter: parent.verticalCenter;
+        Column {
             anchors.left: icon.right;
             anchors.leftMargin: Format.marginStandard;
-            size: Format.textSmall;
+            anchors.verticalCenter: parent.verticalCenter;
+
+            Label {
+                text: albumName;
+                size: Format.textSmall;
+            }
+
+            Label {
+                text: artistName;
+                size: Format.textTiny;
+                color: Palette.color_textSecondary;
+            }
         }
     }
 }

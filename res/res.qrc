@@ -29,5 +29,6 @@
         <file>qml/ui/controls/MyAnimation.qml</file>
         <file>qml/app/LibraryFooter.qml</file>
         <file>qml/app/TagView.qml</file>
+        <file>qml/ui/controls/RoundImage.qml</file>
     </qresource>
 </RCC>

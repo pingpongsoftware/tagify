@@ -31,7 +31,7 @@ Rectangle {
                 anchors.right: parent.right;
                 anchors.top: parent.top;
                 anchors.bottom: footer.top;
-                anchors.bottomMargin: nowPlaying.closedHeight;
+                anchors.bottomMargin: nowPlayingLoader.active ? Format.header : 0;
                 sourceComponent: {
                     switch(main.state) {
                     case "songs": return songs;
@@ -53,11 +53,22 @@ Rectangle {
                 onTagifyClicked: stackView.push(tagView);
             }
 
-            NowPlaying {
-                id: nowPlaying;
-
-                state: "bar"
+            Loader {
+                id: nowPlayingLoader;
                 anchors.fill: parent;
+                active: !!Spotify.nowPlaying;
+                sourceComponent: nowPlayingComponent;
+            }
+
+            Component {
+                id: nowPlayingComponent;
+
+                NowPlaying {
+                    id: nowPlaying;
+
+                    state: "bar"
+                    anchors.fill: parent;
+                }
             }
         }
     }

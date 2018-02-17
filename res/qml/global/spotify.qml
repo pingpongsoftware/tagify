@@ -46,8 +46,11 @@ Item {
     function initialize() {
         getCurrentUser();
         getDevices();
-//        spotify.state = "initialized";
-        getAllSongs(function() { spotify.state = "initialized"; })
+        if (DBManager.alreadyExists) {
+            spotify.state = "initialized";
+        } else {
+            getAllSongs(function() { spotify.state = "initialized"; })
+        }
     }
 
     function getCurrentUser(callback) {
@@ -76,8 +79,8 @@ Item {
         SpotifyWrapper.get("https://api.spotify.com/v1/albums?ids=" + albumIds.join(','), callback);
     }
 
-    function getArtist(artistId, callback) {
-        SpotifyWrapper.get("https://api.spotify.com/v1/artists/" + artistId, callback)
+    function getArtists(artistIds, callback) {
+        SpotifyWrapper.get("https://api.spotify.com/v1/artists?ids=" + artistIds.join(','), callback)
     }
 
     function getAllSongs(callback) {
@@ -105,6 +108,7 @@ Item {
     function extrapolateDataFromSongs(songArray) {
         var songIds = [];
         var albumIds = [];
+        var artistIds = [];
 
         for (var i in songArray) {
             var track = songArray[i].track;
@@ -112,10 +116,11 @@ Item {
             var artist = track.artists[0];
             songIds.push(track.id);
             albumIds.push(album.id);
+            artistIds.push(artist.id);
 
             DBManager.addSong(track.id, track.name, album.id, album.name, artist.id, artist.name, "");
             DBManager.addAlbum(album.id, album.name, album.images[0].url, album.artists[0].id, album.artists[0].name);
-            DBManager.addArtist(artist.id, artist.name)
+//            DBManager.addArtist(artist.id, artist.name)
         }
 
         getAudioFeatures(songIds, function(response) {
@@ -128,13 +133,19 @@ Item {
         getAlbums(albumIds, function(response) {
             var data = JSON.parse((response));
             for (var i in data.albums) {
+                album = data.albums[i];
                 generateAlbumTags(data.albums[i]);
             }
         });
-    }
 
-    property int count: 0;
-    property int totalTempo;
+        getArtists(artistIds, function(response) {
+            var data = JSON.parse(response);
+            for (var i in data.artists) {
+                artist = data.artists[i];
+                DBManager.addArtist(artist.id, artist.name, artist.images[0].url);
+            }
+        });
+    }
 
     function generateTag(audioFeatures) {
         if (audioFeatures.acousticness > 0.5) {
@@ -187,9 +198,7 @@ Item {
             else if (year >= 1950) yearStr = "50''s";
             DBManager.addAlbumTag(album.id, yearStr);
         }
-        console.log(album.genres);
         for (var i in album.genres) {
-            console.log(album.genres[i]);
             DBManager.addAlbumTag(album.id, album.genres[i]);
         }
     }

@@ -5,7 +5,7 @@
 #include <QtGlobal>
 #include <QSqlQuery>
 
-class SqlModel : public QSqlRelationalTableModel
+class SqlModel : public QSqlTableModel
 {
     Q_OBJECT
 public:
