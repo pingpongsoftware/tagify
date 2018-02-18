@@ -1,6 +1,6 @@
 import QtQuick 2.9
 
-PropertyAnimation {
+AnchorAnimation {
     duration: 350;
     easing.type: Easing.OutCubic;
 }

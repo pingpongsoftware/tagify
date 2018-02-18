@@ -24,9 +24,14 @@ Item {
     property int requestInterval: 1000;
     property var nowPlaying;
 
+    property bool tagsActive: true;
     property var activeTags: [];
     property string tagifyFilter: {
-        var baseString = "instr(tags, '" + "&" + "') > 0";;
+        if (!tagsActive) {
+            return "";
+        }
+
+        var baseString = "instr(tags, '" + "&" + "') > 0";
         var finalString = "";
         for (var i in activeTags) {
             finalString += baseString.replace("&", activeTags[i]) + ' AND ';

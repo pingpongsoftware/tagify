@@ -73,6 +73,10 @@ Rectangle {
         }
     }
 
+    C.Drawer {
+
+    }
+
     Component {
         id: songs;
         Songs {}

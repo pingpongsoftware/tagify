@@ -42,33 +42,21 @@ ListView {
 
         onClicked: currentId = songId;
 
-        Label {
-            id: songLabel;
-
-            text: songName;
-            anchors.verticalCenter: parent.verticalCenter;
+        Column {
             anchors.left: parent.left;
             anchors.leftMargin: Format.marginStandard;
-            size: Format.textSmall;
-        }
-
-        Label {
-            id: artistLabel;
-
-            text: artistName;
-            anchors.top: songLabel.bottom;
-            anchors.left: songLabel.left;
-            size: Format.textTiny;
-            color: Palette.color_textSecondary;
-        }
-
-        Label {
-            text: tags;
             anchors.verticalCenter: parent.verticalCenter;
-            anchors.right: songLabel.left;
-            anchors.rightMargin: Format.marginLarge;
-//            color: Palette.color_textSecondary;
-//            size: Format.textTiny;
+
+            Label {
+                text: songName;
+                size: Format.textSmall;
+            }
+
+            Label {
+                text: artistName;
+                size: Format.textTiny;
+                color: Palette.color_textSecondary;
+            }
         }
     }
 }

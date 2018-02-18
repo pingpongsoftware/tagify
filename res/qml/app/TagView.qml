@@ -7,7 +7,9 @@ import format 1.0
 import "../ui/controls"
 import "../ui/design"
 
-Item {
+Rectangle {
+    color: palette.color_background;
+
     IconButton {
         id: backButton;
 

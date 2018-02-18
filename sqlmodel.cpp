@@ -2,6 +2,7 @@
 #include <QDebug>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QSortFilterProxyModel>
 
 static int connections = 0;
 
@@ -44,7 +45,6 @@ void SqlModel::setRoles(const QStringList &roles) {
 
 void SqlModel::setFilterString(const QString &filter) {
     if (database().open()) {
-        setSort(1, Qt::AscendingOrder);
         setFilter(filter);
         applyRoles();
 
@@ -71,6 +71,31 @@ void SqlModel::setTableName(const QString &table) {
         database().close();
 
         emit tableChanged();
+    }
+}
+
+void SqlModel::sortTable(const QString &roleName, const Qt::SortOrder sortOrder, const Qt::CaseSensitivity caseSensitivity) {
+    if (database().open()) {
+        _orderByClause = "ORDER BY " + tableName() + ".\"" + roleName + "\"";
+
+        if (caseSensitivity == Qt::CaseInsensitive) {
+            _orderByClause += " COLLATE NOCASE";
+        }
+
+        if (sortOrder == Qt::AscendingOrder) {
+            _orderByClause += " ASC";
+        } else {
+            _orderByClause += " DESC";
+        }
+
+        qDebug() << _orderByClause;
+        select();
+
+        while(canFetchMore()) {
+            fetchMore();
+        }
+
+        database().close();
     }
 }
 

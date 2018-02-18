@@ -2,6 +2,7 @@ import QtQuick 2.9
 import QtQuick.Layouts 1.3
 import format 1.0
 import palette 1.0
+import spotify 1.0
 
 import "../ui/controls"
 import "../ui/design"
@@ -12,10 +13,14 @@ Rectangle {
     signal newState(string newState);
     signal tagifyClicked();
 
+    property alias rowLayout: rowLayout;
+
     height: Format.footer;
     color: Palette.color_background2;
 
     RowLayout {
+        id: rowLayout;
+
         height: parent.height;
         width: Format.getColumnSpan(4);
         anchors.horizontalCenter: parent.horizontalCenter;
@@ -46,18 +51,23 @@ Rectangle {
             }
         }
 
-        MouseArea {
+        Item {
             Layout.fillWidth: true;
             Layout.fillHeight: true;
-            onClicked: tagifyClicked();
 
-            Logo {
-                width: height;
-                height: parent.height;
-                circleVisible: false;
-                tagColor: Palette.spotify;
-                tagOpacity: 1;
-                anchors.centerIn: parent;
+            MouseArea {
+                anchors.fill: parent;
+                onClicked: Spotify.tagsActive = !Spotify.tagsActive;
+
+                Logo {
+                    width: height;
+                    height: parent.height;
+                    circleVisible: false;
+                    tagColor: Spotify.tagsActive ? Palette.spotify : Palette.color_inactive;
+                    tagOpacity: 1;
+                    anchors.centerIn: parent;
+                }
+
             }
         }
 

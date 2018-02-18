@@ -54,7 +54,9 @@ Item {
     property real textDisplay4: 112;
 
     property real header: 60;
-    property real footer: 50
+    property real footer: 50;
+    property real listSectionHeader: 60;
+    property real listItem: 60;
 
     property int animationMedium: 500;
 

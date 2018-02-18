@@ -16,10 +16,6 @@ Item {
 
     property real closedHeight: Format.header;
 
-    Behavior on bottomMargin { MyAnimation {} }
-    Behavior on topMargin { MyAnimation {} }
-    Behavior on topBlurMargin { MyAnimation {} }
-
     Image {
         id: albumArt;
 
@@ -74,10 +70,6 @@ Item {
                 layer.enabled: true;
                 layer.effect: FastBlur {
                     radius: 128;
-                    layer.enabled: true;
-                    layer.effect: FastBlur {
-                        radius: 128;
-                    }
                 }
             }
         }
@@ -138,14 +130,7 @@ Item {
         Column {
             id: nowPlayingColumn;
 
-            anchors.top: parent.top;
-            anchors.topMargin: Format.marginSmall;
-            anchors.horizontalCenter: parent.horizontalCenter;
-
-            readonly property real topMarginFull: Format.marginStandard;
-            readonly property real topMarginBar: Format.marginSmall;
-
-            Behavior on anchors.topMargin { MyAnimation{} }
+            anchors.topMargin: Format.marginStandard;
 
             Label {
                 text: Spotify.nowPlaying.name;
@@ -176,11 +161,8 @@ Item {
             id: playPauseButton;
 
             width: height;
-
-            Behavior on x { MyAnimation{} }
-            Behavior on y { MyAnimation{} }
-            Behavior on height { MyAnimation{} }
-            Behavior on otherButtonsOpacity { MyAnimation{} }
+            anchors.rightMargin: Format.marginStandard;
+            anchors.topMargin: Format.marginStandard;
 
             property real otherButtonsOpacity;
         }
@@ -206,15 +188,18 @@ Item {
                 topMargin: main.height - Format.footer - closedHeight;
                 topBlurMargin: main.height - Format.footer - closedHeight;
             }
-            PropertyChanges {
-                target: nowPlayingColumn
-                anchors.topMargin: topMarginBar;
+            AnchorChanges {
+                target: nowPlayingColumn;
+                anchors.horizontalCenter: nowPlayingColumn.parent.horizontalCenter;
+                anchors.verticalCenter: nowPlayingColumn.parent.verticalCenter;
+            }
+            AnchorChanges {
+                target: playPauseButton;
+                anchors.verticalCenter: playPauseButton.parent.verticalCenter;
+                anchors.right: playPauseButton.parent.right;
             }
             PropertyChanges {
                 target: playPauseButton;
-
-                x: main.width - Format.basicUnit * 4 - Format.marginStandard;
-                y: (Format.header - Format.basicUnit * 4) / 2;
                 height: Format.basicUnit * 4;
                 otherButtonsOpacity: 0;
             }
@@ -227,17 +212,39 @@ Item {
                 topMargin: 0;
                 topBlurMargin: main.height - Format.header * 3;
             }
-            PropertyChanges {
-                target: nowPlayingColumn
-                anchors.topMargin: topMarginFull;
+            AnchorChanges {
+                target: nowPlayingColumn;
+                anchors.top: nowPlayingColumn.parent.top;
+                anchors.horizontalCenter: nowPlayingColumn.parent.horizontalCenter;
+            }
+            AnchorChanges {
+                target: playPauseButton;
+                anchors.top: nowPlayingColumn.bottom;
+                anchors.horizontalCenter: playPauseButton.parent.horizontalCenter;
             }
             PropertyChanges {
                 target: playPauseButton;
-
-                x: (main.width - Format.basicUnit * 8) / 2;
-                y: nowPlayingColumn.height + nowPlayingColumn.topMarginFull + Format.marginStandard;
                 height: Format.basicUnit * 8;
                 otherButtonsOpacity: 1;
+            }
+        }
+    ]
+
+    transitions: [
+        Transition {
+            from: "*";
+            to: "*";
+
+            MyAnchorAnimation {}
+
+            MyAnimation {
+                target: main;
+                properties: "topMargin, bottomMargin, topBlurMargin";
+            }
+
+            MyAnimation {
+                target: playPauseButton;
+                properties: "height, otherButtonsOpacity";
             }
         }
     ]

@@ -18,13 +18,15 @@ public:
 
     void applyRoles();
     Q_INVOKABLE QVariant data(const QModelIndex &index, int role) const;
+    Q_INVOKABLE void sortTable(const QString &roleName, const Qt::SortOrder sortOrder = Qt::AscendingOrder, const Qt::CaseSensitivity caseSensitivity = Qt::CaseInsensitive);
 
     void setRoles(const QStringList &roles);
     void setTableName(const QString &table);
     void setFilterString(const QString &filter);
 
-    QStringList roles() { return _roles; }
-    QString filterString() { return filter(); }
+    QStringList roles() const { return _roles; }
+    QString filterString() const { return filter(); }
+    QString orderByClause() const { return _orderByClause; }
 
 #if QT_VERSION >= 0x050000
     virtual QHash<int, QByteArray> roleNames() const{return _sqlRoles;}
@@ -34,6 +36,7 @@ private:
     int count;
     QHash<int, QByteArray> _sqlRoles;
     QStringList _roles;
+    QString _orderByClause;
 
 signals:
     void countChanged();

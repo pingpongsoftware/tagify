@@ -24,6 +24,7 @@ Item {
     property color color_iconButton;
     property color color_iconButtonHighlighted;
     property color color_nowPlayingOverlay;
+    property color color_inactive;
 
     property real pressedOpacity;
     property real nowPlayingOverlayOpacity;
@@ -37,7 +38,7 @@ Item {
             PropertyChanges {
                 target: palette;
 
-                color_background: "#151515";
+                color_background: "#292929";
                 color_background2: "#202020";
                 color_button: spotify;
                 color_buttonActive: Qt.lighter(color_button, 1.1);
@@ -52,6 +53,7 @@ Item {
                 color_iconButton: color_textPrimary;
                 color_iconButtonHighlighted: Qt.lighter(palette.spotify, 1.5);
                 color_nowPlayingOverlay: "#707070";
+                color_inactive: "gray";
 
                 pressedOpacity: 0.5;
                 nowPlayingOverlayOpacity: 1.0;
@@ -79,6 +81,7 @@ Item {
                 color_iconButton: color_textPrimary;
                 color_iconButtonHighlighted: Qt.darker(palette.spotify, 1.5);
                 color_nowPlayingOverlay: "white";
+                color_inactive: "gray";
 
                 pressedOpacity: 0.5;
                 nowPlayingOverlayOpacity: 0;

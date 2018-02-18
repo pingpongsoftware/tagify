@@ -7,9 +7,23 @@ import palette 1.0
 import "../ui/controls"
 
 ListView {
+    section.property: "artistName";
+    section.criteria: ViewSection.FirstCharacter;
+    section.delegate: Item {
+        anchors.left: parent.left;
+        anchors.leftMargin: Format.marginStandard;
+        height: Format.listSectionHeader;
+
+        Label {
+            text: section;
+            anchors.bottom: parent.bottom;
+        }
+    }
+
     model: SqlListModel {
         table: "albums";
         roles: ["albumName", "artUrl", "artistId", "artistName"];
+        Component.onCompleted: sortTable(section.property);
     }
 
     delegate: Item {
